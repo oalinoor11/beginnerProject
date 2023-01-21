@@ -39,6 +39,7 @@ dependencies:
   get: ^4.6.5
   webview_flutter: ^3.0.4
   connectivity_plus: ^2.3.0
+  change_app_package_name: ^1.0.0
 
 dev_dependencies:
   flutter_test:
