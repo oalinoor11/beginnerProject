@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:developer' as developer;
 
 void main() {
   runApp(const MyApp());
@@ -35,37 +40,96 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool loader = true;
   late WebViewController controller;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    // _checkVersion();
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      developer.log('Couldn\'t check connectivity status', error: e);
+      return;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text("CarbonCodes")),
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: WebView(
-              initialUrl:
-              Uri.encodeFull("http://carboncodes.net/"),
-              javascriptMode: JavascriptMode.unrestricted,
-              onWebViewCreated: (WebViewController webViewController) {
-                controller = webViewController;
-              },
-              onPageFinished: (url) {
-                setState(() {
-                  loader = false;
-                });
-              },
-            ),
-          ),
-          if (loader)
+    return _connectionStatus.toString() != "ConnectivityResult.none" ?
+      SafeArea(
+        child: Scaffold(
+        // appBar: AppBar(
+        //   title: Center(child: Text("CarbonCodes")),
+        // ),
+        body: Stack(
+          children: [
             Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.1),
-                child: Center(child: CircularProgressIndicator()),
+              child: WebView(
+                initialUrl:
+                Uri.encodeFull("http://carboncodes.net/"),
+                javascriptMode: JavascriptMode.unrestricted,
+                onWebViewCreated: (WebViewController webViewController) {
+                  controller = webViewController;
+                },
+                onPageFinished: (url) {
+                  setState(() {
+                    loader = false;
+                  });
+                },
               ),
             ),
-        ],
+            if (loader)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.white,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
+          ],
+        ),
+    ),
+      )
+        : Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Image(
+          image: AssetImage("assets/nointernet.png"),
+          height: 300,
+          alignment: Alignment.center,
+        ),
       ),
     );
   }
