@@ -1,4 +1,4 @@
-package com.example.simplewebview
+package net.carboncodes.muskan
 
 import io.flutter.embedding.android.FlutterActivity
 

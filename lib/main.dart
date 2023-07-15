@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CarbonCodes',
+      title: 'My Halal Business Platform',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -88,6 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.orange,
+      statusBarIconBrightness: Brightness.light,
+    ));
     return _connectionStatus.toString() != "ConnectivityResult.none" ?
       SafeArea(
         child: Scaffold(
@@ -99,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Positioned.fill(
               child: WebView(
                 initialUrl:
-                Uri.encodeFull("http://carboncodes.net/"),
+                Uri.encodeFull("http://muskanmartbd.com"),
                 javascriptMode: JavascriptMode.unrestricted,
                 onWebViewCreated: (WebViewController webViewController) {
                   controller = webViewController;
@@ -115,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Positioned.fill(
                 child: Container(
                   color: Colors.white,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(child: CircularProgressIndicator(color: Colors.orange,)),
                 ),
               ),
           ],
