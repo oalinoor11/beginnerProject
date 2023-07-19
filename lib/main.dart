@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_webview_pro/webview_flutter.dart';
 import 'package:get/get.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:developer' as developer;
+
+import 'package:new_version/new_version.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,7 +43,6 @@ class MyHomePage extends StatefulWidget {
 }
 class _MyHomePageState extends State<MyHomePage> {
   bool loader = true;
-  late WebViewController controller;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -47,11 +50,43 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // _checkVersion();
+    camerapermission();
+    _checkVersion();
     initConnectivity();
+    if (Platform.isAndroid) WebView.platform = AndroidWebView();
 
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  camerapermission() async {
+    await Permission.camera.request ();
+  }
+
+  void _checkVersion() async {
+    final newVersion = NewVersion();
+
+    final status = await newVersion.getVersionStatus();
+    print(status?.localVersion.toString());
+    print(status?.storeVersion.toString());
+
+    if(status?.localVersion.toString() != status?.storeVersion.toString())
+    {
+      print("Update availabe");
+      newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status!,
+        dialogTitle: "Update Available",
+        dismissButtonText: "Skip",
+        dialogText: "You're missing out something!",
+        dismissAction: () {
+          Get.back();
+        },
+        updateButtonText: "Update Now",
+      );
+    }
+    else
+    {print("Update not availabe");}
   }
 
   @override
@@ -102,17 +137,31 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Positioned.fill(
               child: WebView(
-                initialUrl:
-                Uri.encodeFull("http://muskanmartbd.com"),
+                initialUrl: 'http://muskanmartbd.com',
                 javascriptMode: JavascriptMode.unrestricted,
-                onWebViewCreated: (WebViewController webViewController) {
-                  controller = webViewController;
+                onProgress: (int progress) {
+                  print("WebView is loading (progress : $progress%)");
                 },
-                onPageFinished: (url) {
+                navigationDelegate: (NavigationRequest request) {
+                  if (request.url.startsWith('https://www.youtube.com/')) {
+                    print('blocking navigation to $request}');
+                    return NavigationDecision.prevent;
+                  }
+                  print('allowing navigation to $request');
+                  return NavigationDecision.navigate;
+                },
+                onPageStarted: (String url) {
+                  setState(() {
+                    loader = true;
+                  });
+                },
+                onPageFinished: (String url) {
                   setState(() {
                     loader = false;
                   });
                 },
+                gestureNavigationEnabled: true,
+                geolocationEnabled: false,//support geolocation or not
               ),
             ),
             if (loader)
