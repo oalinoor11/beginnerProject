@@ -1,4 +1,4 @@
-package net.carboncodes.muskan
+package net.carboncodes.natralglo
 
 import io.flutter.embedding.android.FlutterActivity
 

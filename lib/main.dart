@@ -27,9 +27,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'My Halal Business Platform',
+      title: 'natralglo',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.green,
       ),
       home: const MyHomePage(),
     );
@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: Colors.orange,
+        statusBarColor: Colors.green,
       statusBarIconBrightness: Brightness.light,
     ));
     return _connectionStatus.toString() != "ConnectivityResult.none" ?
@@ -137,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Positioned.fill(
               child: WebView(
-                initialUrl: 'http://muskanmartbd.com',
+                initialUrl: 'http://natralglo.com/',
                 javascriptMode: JavascriptMode.unrestricted,
                 onProgress: (int progress) {
                   print("WebView is loading (progress : $progress%)");
@@ -168,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Positioned.fill(
                 child: Container(
                   color: Colors.white,
-                  child: Center(child: CircularProgressIndicator(color: Colors.orange,)),
+                  child: Center(child: CircularProgressIndicator(color: Colors.green,)),
                 ),
               ),
           ],
